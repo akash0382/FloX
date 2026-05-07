@@ -5,7 +5,7 @@ A full-stack web application for teams to create projects, assign tasks, and tra
 ## Live Demo
 
 - **Live URL:** [Add your Railway URL here]
-- **Demo Video:** [Add your 2-5 min demo video link here]
+
 
 ## Features
 
