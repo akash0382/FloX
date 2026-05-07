@@ -1,207 +1,209 @@
-# Team Task Manager
+# FloX — Team Task Manager
 
-A full-stack web app for teams to manage projects, assign tasks, and track progress with role-based access control.
+A full-stack web application for teams to create projects, assign tasks, and track progress with role-based access control (Admin/Member).
 
-Built with Next.js 15, TypeScript, Tailwind CSS, Prisma, and PostgreSQL. Deployed on Railway.
+## Live Demo
+
+- **Live URL:** [Add your Railway URL here]
+- **Demo Video:** [Add your 2-5 min demo video link here]
 
 ## Features
 
-### Core
-
-- **Authentication** — Email + password signup and login with JWT in httpOnly cookies and bcrypt-hashed passwords.
-- **Projects & teams** — Create projects, invite members by email, assign per-project Admin or Member roles.
-- **Task management** — Create tasks with title, markdown description, priority (Low/Medium/High/Urgent), status (To do / In progress / In review / Done), due date, and assignee.
-- **Kanban board** — 2×2 grid layout with status columns, quick status changes via dropdown, edit and delete with undo.
-- **Task detail panel** — Click any task card to open a slide-over panel (right half of screen) showing full details, markdown description, and status controls.
-- **Dashboard** — Stat cards for all statuses, overdue tasks, total projects. Interactive "My tasks" list with status change dropdowns and clickable task detail view.
-- **Role-based access control**
-  - **Global Admin** (first user to sign up) sees everything.
-  - **Project Admin** (or project owner) can manage members, create/edit/delete tasks.
-  - **Project Member** can view the project, change status on tasks they're assigned to or created, and delete their own tasks.
-
-### UI & Experience
-
-- **Dark / Light theme toggle** — Persists to localStorage, respects system preference, no flash on load (inline script sets `data-theme` before hydration).
-- **Markdown support** — Task descriptions support full GitHub Flavored Markdown (bold, code, lists, checkboxes, links, tables). Write/Preview tabbed editor in the task form. Rendered with sanitization in cards and detail panels.
-- **Undo toast for deletes** — Task and member deletions show a toast notification with a 6-second Undo button that re-creates the item. Project delete uses a styled confirmation modal (not browser `confirm()`).
-- **Empty-state onboarding** — New projects with 0 tasks show a friendly onboarding card with tips and a "Add sample tasks" button (admin only) that seeds 6 realistic tasks across all columns.
-- **Priority accent bars** — Each task card has a colored left border indicating priority at a glance (slate/blue/orange/red).
-- **Assignee avatars** — Initials-based avatar circles on task cards and detail panels.
-- **Responsive layout** — Board columns in 2×2 grid (1 col on mobile, 2 on md+), Members panel stacks below on smaller screens.
-
-### Validation & Data Integrity
-
-- **Validation** — All API inputs validated with Zod.
-- **Data integrity** — Cascade deletes, unique constraints, and relational foreign keys enforced in Postgres via Prisma.
-- **Neon-friendly** — Connection timeout params for cold-start resilience on serverless Postgres.
+- **Authentication** — Signup/Login with JWT (httpOnly cookies) and bcrypt password hashing
+- **Project Management** — Create projects with color coding, invite team members by email
+- **Task Management** — Create, assign, and track tasks with status, priority, due dates
+- **Kanban Board** — Visual 4-column board (To do → In progress → In review → Completed)
+- **Dashboard** — Overview with stats (total tasks, overdue, in progress, etc.) and personal task list
+- **Role-Based Access Control** — Global Admin/Member roles + per-project Admin/Member roles
+- **Overdue Detection** — Tasks past their due date are flagged automatically
+- **Filters** — Filter tasks by All / Mine / Overdue on project pages
 
 ## Tech Stack
 
-| Layer      | Tech                                    |
-| ---------- | --------------------------------------- |
-| Frontend   | Next.js 15 (App Router) + React 18      |
-| Styling    | Tailwind CSS, custom CSS variables      |
-| Icons      | Lucide React                            |
-| Markdown   | react-markdown + remark-gfm + rehype-sanitize |
-| Backend    | Next.js Route Handlers (REST)           |
-| Database   | PostgreSQL (Neon / Railway)             |
-| ORM        | Prisma                                  |
-| Auth       | JWT (jsonwebtoken) + bcryptjs           |
-| Validation | Zod                                     |
-| Hosting    | Railway (app + managed Postgres)        |
+| Layer      | Technology                          |
+| ---------- | ----------------------------------- |
+| Frontend   | React 18, Vite, TypeScript          |
+| Styling    | Tailwind CSS, Lucide React icons    |
+| Routing    | React Router DOM v6                 |
+| Backend    | Express.js, TypeScript              |
+| Database   | PostgreSQL                          |
+| ORM        | Prisma                              |
+| Auth       | JWT (jsonwebtoken) + bcryptjs       |
+| Validation | Zod                                 |
+| HTTP       | Axios (frontend), cookie-parser     |
+| Deployment | Railway                             |
 
 ## Project Structure
 
 ```
-.
-├── prisma/
-│   └── schema.prisma              # DB schema: User, Project, ProjectMember, Task
-├── src/
-│   ├── app/
-│   │   ├── api/                   # REST endpoints
-│   │   │   ├── auth/              # signup, login, logout, me
-│   │   │   ├── projects/          # CRUD + members + tasks + seed-tasks
-│   │   │   ├── tasks/[id]/        # update, delete
-│   │   │   └── dashboard/         # stats + my tasks
-│   │   ├── (app)/                 # authenticated routes
-│   │   │   ├── dashboard/
-│   │   │   └── projects/
-│   │   ├── login/
-│   │   ├── signup/
-│   │   ├── layout.tsx             # ThemeProvider + ToastProvider
-│   │   ├── globals.css            # Dark/light theme variables + component styles
-│   │   └── page.tsx               # landing
-│   ├── components/
-│   │   ├── auth/                  # LoginForm, SignupForm
-│   │   ├── dashboard/             # MyTaskList (interactive task list + detail panel)
-│   │   ├── layout/                # AppNav, ThemeToggle
-│   │   ├── projects/              # ProjectView, MemberList, NewProjectButton, ProjectOnboarding
-│   │   ├── providers/             # ThemeProvider, ToastProvider
-│   │   ├── tasks/                 # TaskBoard, TaskFormModal, PriorityBadge, StatusBadge
-│   │   └── ui/                    # Markdown, MarkdownEditor
-│   └── lib/
-│       ├── prisma.ts              # Prisma singleton
-│       ├── auth.ts                # JWT, bcrypt, session cookie
-│       ├── rbac.ts                # project access checks
-│       ├── api.ts                 # response helpers
-│       └── utils.ts               # cn(), formatDate(), isOverdue()
-├── nixpacks.toml                  # Railway build config
-├── railway.json
-└── package.json
+akash/
+├── backend/                    # Express REST API
+│   ├── prisma/
+│   │   └── schema.prisma       # Database schema
+│   ├── src/
+│   │   ├── index.ts            # Server entry point
+│   │   ├── lib/
+│   │   │   ├── prisma.ts       # Prisma client singleton
+│   │   │   ├── auth.ts         # JWT, bcrypt, middleware
+│   │   │   └── validate.ts     # Zod validation middleware
+│   │   └── routes/
+│   │       ├── auth.ts         # Signup, login, logout, me
+│   │       ├── projects.ts     # CRUD + members
+│   │       ├── tasks.ts        # Create, update, delete
+│   │       └── dashboard.ts    # Stats + my tasks
+│   ├── package.json
+│   └── tsconfig.json
+│
+├── frontend/                   # React SPA
+│   ├── src/
+│   │   ├── main.tsx            # Entry point
+│   │   ├── App.tsx             # Routes + auth provider
+│   │   ├── index.css           # Tailwind + custom styles
+│   │   ├── lib/
+│   │   │   ├── api.ts          # Axios instance
+│   │   │   └── auth.tsx        # Auth context provider
+│   │   ├── components/
+│   │   │   └── Layout.tsx      # Sidebar layout
+│   │   └── pages/
+│   │       ├── Login.tsx
+│   │       ├── Signup.tsx
+│   │       ├── Dashboard.tsx
+│   │       ├── Projects.tsx
+│   │       └── ProjectDetail.tsx
+│   ├── index.html
+│   ├── package.json
+│   ├── vite.config.ts
+│   ├── tailwind.config.js
+│   └── postcss.config.js
+│
+└── README.md
 ```
 
-## REST API
+## REST API Endpoints
 
-All endpoints return JSON. Auth is required for everything except `/api/auth/signup` and `/api/auth/login`.
+| Method | Endpoint                              | Description                     |
+| ------ | ------------------------------------- | ------------------------------- |
+| POST   | `/api/auth/signup`                    | Create account                  |
+| POST   | `/api/auth/login`                     | Login                           |
+| POST   | `/api/auth/logout`                    | Logout                          |
+| GET    | `/api/auth/me`                        | Get current user                |
+| GET    | `/api/projects`                       | List my projects                |
+| POST   | `/api/projects`                       | Create project                  |
+| GET    | `/api/projects/:id`                   | Get project with tasks/members  |
+| DELETE | `/api/projects/:id`                   | Delete project                  |
+| POST   | `/api/projects/:id/members`           | Add member by email             |
+| DELETE | `/api/projects/:id/members/:memberId` | Remove member                   |
+| POST   | `/api/tasks`                          | Create task                     |
+| PATCH  | `/api/tasks/:id`                      | Update task                     |
+| DELETE | `/api/tasks/:id`                      | Delete task                     |
+| GET    | `/api/dashboard`                      | Dashboard stats + my tasks      |
 
-| Method | Path                                         | Description                              |
-| ------ | -------------------------------------------- | ---------------------------------------- |
-| POST   | `/api/auth/signup`                           | Create account, sets session cookie      |
-| POST   | `/api/auth/login`                            | Log in, sets session cookie              |
-| POST   | `/api/auth/logout`                           | Clear session                            |
-| GET    | `/api/auth/me`                               | Current user                             |
-| GET    | `/api/projects`                              | List projects I can access               |
-| POST   | `/api/projects`                              | Create project (I become Admin/owner)    |
-| GET    | `/api/projects/:id`                          | Project detail with members + tasks      |
-| PATCH  | `/api/projects/:id`                          | Update (project admin)                   |
-| DELETE | `/api/projects/:id`                          | Delete (owner or global admin)           |
-| POST   | `/api/projects/:id/members`                  | Add member by email (project admin)      |
-| PATCH  | `/api/projects/:id/members/:memberId`        | Change member role (project admin)       |
-| DELETE | `/api/projects/:id/members/:memberId`        | Remove member (project admin)            |
-| POST   | `/api/projects/:id/tasks`                    | Create task                              |
-| POST   | `/api/projects/:id/seed-tasks`               | Seed sample tasks for onboarding (admin) |
-| PATCH  | `/api/tasks/:id`                             | Update task                              |
-| DELETE | `/api/tasks/:id`                             | Delete task                              |
-| GET    | `/api/dashboard`                             | Stats + my tasks                         |
-
-## Local Development
-
-### 1. Prerequisites
-
-- Node.js 18+
-- PostgreSQL 14+ (or use a free instance from Neon / Supabase / Railway)
-
-### 2. Install
-
-```bash
-npm install
-```
-
-### 3. Configure env
-
-```bash
-cp .env.example .env
-```
-
-Edit `.env`:
-
-```env
-DATABASE_URL="postgresql://user:password@localhost:5432/teamtasks?connect_timeout=30"
-JWT_SECRET="generate-a-long-random-string-here"
-```
-
-### 4. Run migrations
-
-```bash
-npx prisma migrate dev --name init
-```
-
-### 5. Start dev server
-
-```bash
-npm run dev
-```
-
-Open http://localhost:3000. The first account you create becomes the global admin.
-
-## Deploy to Railway
-
-1. **Push to GitHub.**
-2. **Create a Railway project** at [railway.app](https://railway.app) → *New Project* → *Deploy from GitHub repo*.
-3. **Add a PostgreSQL database** to the project (*+ New* → *Database* → *Add PostgreSQL*).
-4. **Set environment variables** on the app service:
-   - `DATABASE_URL` → reference the Postgres service: `${{Postgres.DATABASE_URL}}`
-   - `JWT_SECRET` → a long random string (e.g. `openssl rand -hex 48`)
-   - `NODE_ENV` → `production`
-5. **Generate a public domain** on the app service (Settings → Networking → Generate Domain).
-6. Railway will build using `nixpacks.toml`, which runs `prisma migrate deploy` automatically, then starts the server with `npm run start`.
-
-The app listens on `$PORT`, which Railway sets automatically.
-
-## Theme System
-
-The app uses CSS custom properties for theming. Two palettes are defined in `globals.css`:
-
-- `:root` / `[data-theme="dark"]` — Dark purple theme (default)
-- `[data-theme="light"]` — Clean light theme
-
-Theme preference is stored in `localStorage` under `tt-theme`. An inline script in `<head>` applies the theme before React hydrates to prevent flash. The toggle button is in the top navigation bar.
-
-## Role Model
-
-- **Global role (on User):** `ADMIN` or `MEMBER`. First signup gets `ADMIN`.
-- **Project role (on ProjectMember):** `ADMIN` or `MEMBER`.
-- The project **owner** is always treated as a project admin and cannot be removed.
-- A **Global Admin** has full access to every project.
-
-## Database Schema (simplified)
+## Database Schema
 
 ```
-User (id, email, name, passwordHash, role)
-  ├── ownedProjects → Project (ownerId)
-  ├── memberships → ProjectMember (userId)
-  ├── assignedTasks → Task (assigneeId)
-  └── createdTasks → Task (createdById)
+User (id, email, name, passwordHash, role, avatar)
+  ├── ownedProjects → Project
+  ├── memberships → ProjectMember
+  ├── assignedTasks → Task
+  └── createdTasks → Task
 
-Project (id, name, description, ownerId)
+Project (id, name, description, color, ownerId)
   ├── members → ProjectMember
   └── tasks → Task
 
-ProjectMember (id, projectId, userId, role) — unique(projectId, userId)
+ProjectMember (id, projectId, userId, role)
+  └── unique(projectId, userId)
 
-Task (id, title, description, status, priority, dueDate,
-      projectId, assigneeId, createdById)
+Task (id, title, description, status, priority, dueDate, projectId, assigneeId, createdById)
 ```
+
+## Role Model
+
+- **Global ADMIN** — First user to sign up. Full access to all projects.
+- **Global MEMBER** — Can only see projects they own or are invited to.
+- **Project ADMIN** — Can manage members, create/edit/delete all tasks in the project.
+- **Project MEMBER** — Can create tasks, update status on tasks assigned to them.
+
+## Local Development
+
+### Prerequisites
+
+- Node.js 18+
+- PostgreSQL (or a free cloud instance from [Neon](https://neon.tech), [Supabase](https://supabase.com), or Railway)
+
+### 1. Clone and install
+
+```bash
+git clone <your-repo-url>
+cd akash
+
+# Install backend
+cd backend
+npm install
+
+# Install frontend
+cd ../frontend
+npm install
+```
+
+### 2. Configure environment
+
+Create `backend/.env`:
+
+```env
+DATABASE_URL="postgresql://user:password@host:5432/dbname?sslmode=require"
+JWT_SECRET="generate-a-long-random-string"
+PORT=4000
+FRONTEND_URL="http://localhost:5173"
+```
+
+### 3. Push database schema
+
+```bash
+cd backend
+npx prisma db push
+```
+
+### 4. Start development servers
+
+Terminal 1 (backend):
+```bash
+cd backend
+npm run dev
+```
+
+Terminal 2 (frontend):
+```bash
+cd frontend
+npm i
+npm run dev
+```
+
+Open http://localhost:5173. The first account you create becomes the global admin.
+
+## Deploy to Railway
+
+### Option A: Monorepo (recommended)
+
+1. Push to GitHub
+2. Create a Railway project → Deploy from GitHub
+3. Add a PostgreSQL database service
+4. Create two services from the same repo:
+   - **Backend service:** Root directory = `backend`, Start command = `npm run build && npm start`
+   - **Frontend service:** Root directory = `frontend`, Build command = `npm run build`, Static output = `dist`
+5. Set environment variables on the backend service:
+   - `DATABASE_URL` → reference Postgres: `${{Postgres.DATABASE_URL}}`
+   - `JWT_SECRET` → random string
+   - `FRONTEND_URL` → your frontend Railway domain
+6. Update `frontend/src/lib/api.ts` baseURL to point to your backend Railway domain for production
+
+### Option B: Combined (single service)
+
+Serve the frontend build from Express by adding static file serving in production. See Railway docs for details.
+
+## Screenshots
+
+_Add screenshots of your app here_
 
 ## License
 
